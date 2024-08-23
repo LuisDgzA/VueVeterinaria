@@ -54,6 +54,8 @@
         }, 2500)
     }
 
+    
+
     // const nombre = ref('');
 </script>
 
