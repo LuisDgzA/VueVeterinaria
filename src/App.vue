@@ -1,5 +1,5 @@
 <script setup>
-	import { ref, reactive } from 'vue';
+	import { ref, reactive, watch, onMounted } from 'vue';
 
     import { uid } from 'uid';
 
@@ -20,16 +20,54 @@
 	})
 
 	const addPaciente = () => {
-		console.log('agregando')
-		pacientes.value.push({
-			...paciente,
-			id: uid()
-		})
+		if(paciente.id){
+			const { id } = paciente
+			const i = pacientes.value.findIndex(pacienteState => pacienteState.id === id)
+			pacientes.value[i] = {...paciente}
+		}else{
+
+			console.log('agregando')
+			pacientes.value.push({
+				...paciente,
+				id: uid()
+			})
+		}
 		paciente.nombre= ''
 		paciente.propietario= ''
 		paciente.email= ''
 		paciente.fechaAlta= ''
 		paciente.sintomas= ''
+		paciente.id = null
+	}
+
+	const editPaciente = (id) => {
+		console.log(id)
+		const pacienteEditar = pacientes.value.filter(paciente => paciente.id === id)[0]
+
+		Object.assign(paciente, pacienteEditar)
+		
+	}
+
+	const elimiarPaciente = (id) => {
+		pacientes.value = pacientes.value.filter(paciente => paciente.id !== id)
+	}
+
+	onMounted(() => {
+		if(localStorage.getItem('pacientes') != null){
+			pacientes.value = JSON.parse(localStorage.getItem('pacientes'))
+		}
+
+	});
+
+	watch(pacientes, () => {
+		savePacientesLocalStorage()
+	},
+	{
+		deep: true
+	})
+
+	const savePacientesLocalStorage = () => {
+		localStorage.setItem('pacientes', JSON.stringify(pacientes.value))
 	}
 </script>
 
@@ -44,6 +82,7 @@
 				v-model:alta="paciente.fechaAlta"
 				v-model:sintomas="paciente.sintomas"
 				@add-paciente="addPaciente"
+				:id="paciente.id"
 			/>
 
 			<div class="md:w-1/2 md:h-screen overflow-y-scroll">
@@ -56,6 +95,8 @@
 					<Paciente
 						v-for="paciente in pacientes"
 						:paciente="paciente"
+						@edit-paciente="editPaciente"
+						@eliminar-paciente="elimiarPaciente"
 					/>
 				</div>
 				<p v-else class="mt-20 text-2xl text-center">No hay pacientes</p>

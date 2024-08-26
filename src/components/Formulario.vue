@@ -1,5 +1,5 @@
 <script setup>
-    import { reactive } from 'vue'; 
+    import { reactive, computed } from 'vue'; 
 
 
     import Alerta from './Alerta.vue';
@@ -31,6 +31,10 @@
         sintomas:{
             type: String,
             required: true
+        },
+        id:{
+            type: [String, null],
+            required: true
         }
     })
 
@@ -51,10 +55,12 @@
                 mensaje: '',
                 tipo: ''
             })
-        }, 2500)
+        }, 2000)
     }
 
-    
+    const editando = computed(() => {
+        return props.id
+    })
 
     // const nombre = ref('');
 </script>
@@ -150,7 +156,9 @@
                 >
                 </textarea>
             </div>
-            <input type="submit" class="bg-indigo-600 w-full cursor-pointer text-white uppercase font-bold hover:bg-indigo-700 transition-colors p-3" value="registrar paciente">
+            <input type="submit" 
+                class="bg-indigo-600 w-full cursor-pointer text-white uppercase font-bold hover:bg-indigo-700 transition-colors p-3"            
+                :value="[editando ? 'Guardar cambios' : 'Registrar paciente']">
         </form>
     </div>
 </template>
